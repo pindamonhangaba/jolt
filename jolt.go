@@ -18,7 +18,7 @@ type KeyValue struct {
 var DB *bolt.DB
 
 func Start(addr string) {
-	http.Handle("/", http.FileServer(http.Dir("html")))
+	http.Handle("/", http.FileServer(assetFS()))
 	http.HandleFunc("/bucket/list", bucketList) // name[] = array with bucket path , skip, limit
 	http.HandleFunc("/bucket/scan/prefix", prefixScan) // name[] = array with bucket path , prefix , skip, limit
 	http.ListenAndServe(addr, nil)
