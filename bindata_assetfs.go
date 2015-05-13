@@ -1,17 +1,17 @@
-package jolt
+package main
 
 import (
+	"github.com/elazarl/go-bindata-assetfs"
 	"bytes"
 	"compress/gzip"
 	"fmt"
-	"github.com/elazarl/go-bindata-assetfs"
 	"io"
-	"io/ioutil"
+	"strings"
 	"os"
+	"time"
+	"io/ioutil"
 	"path"
 	"path/filepath"
-	"strings"
-	"time"
 )
 
 func bindata_read(data []byte, name string) ([]byte, error) {
@@ -37,9 +37,9 @@ type asset struct {
 }
 
 type bindata_file_info struct {
-	name    string
-	size    int64
-	mode    os.FileMode
+	name string
+	size int64
+	mode os.FileMode
 	modTime time.Time
 }
 
@@ -78,7 +78,7 @@ func html_bundle_bundle_js() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "html_bundle/bundle.js", size: 1001054, mode: os.FileMode(438), modTime: time.Unix(1430837351, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -98,7 +98,7 @@ func html_bundle_css_styles_css() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "html_bundle/css/styles.css", size: 2156, mode: os.FileMode(438), modTime: time.Unix(1430744353, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -118,7 +118,7 @@ func html_bundle_index_html() (*asset, error) {
 	}
 
 	info := bindata_file_info{name: "html_bundle/index.html", size: 654, mode: os.FileMode(438), modTime: time.Unix(1430837302, 0)}
-	a := &asset{bytes: bytes, info: info}
+	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
@@ -141,7 +141,7 @@ func Asset(name string) ([]byte, error) {
 // It simplifies safe initialization of global variables.
 func MustAsset(name string) []byte {
 	a, err := Asset(name)
-	if err != nil {
+	if (err != nil) {
 		panic("asset: Asset(" + name + "): " + err.Error())
 	}
 
@@ -174,9 +174,9 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"html_bundle/bundle.js":      html_bundle_bundle_js,
+	"html_bundle/bundle.js": html_bundle_bundle_js,
 	"html_bundle/css/styles.css": html_bundle_css_styles_css,
-	"html_bundle/index.html":     html_bundle_index_html,
+	"html_bundle/index.html": html_bundle_index_html,
 }
 
 // AssetDir returns the file names below a certain
@@ -215,65 +215,68 @@ func AssetDir(name string) ([]string, error) {
 }
 
 type _bintree_t struct {
-	Func     func() (*asset, error)
+	Func func() (*asset, error)
 	Children map[string]*_bintree_t
 }
-
 var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"html_bundle": &_bintree_t{nil, map[string]*_bintree_t{
-		"bundle.js": &_bintree_t{html_bundle_bundle_js, map[string]*_bintree_t{}},
-		"css": &_bintree_t{nil, map[string]*_bintree_t{
-			"styles.css": &_bintree_t{html_bundle_css_styles_css, map[string]*_bintree_t{}},
+		"bundle.js": &_bintree_t{html_bundle_bundle_js, map[string]*_bintree_t{
 		}},
-		"index.html": &_bintree_t{html_bundle_index_html, map[string]*_bintree_t{}},
+		"css": &_bintree_t{nil, map[string]*_bintree_t{
+			"styles.css": &_bintree_t{html_bundle_css_styles_css, map[string]*_bintree_t{
+			}},
+		}},
+		"index.html": &_bintree_t{html_bundle_index_html, map[string]*_bintree_t{
+		}},
 	}},
 }}
 
 // Restore an asset under the given directory
 func RestoreAsset(dir, name string) error {
-	data, err := Asset(name)
-	if err != nil {
-		return err
-	}
-	info, err := AssetInfo(name)
-	if err != nil {
-		return err
-	}
-	err = os.MkdirAll(_filePath(dir, path.Dir(name)), os.FileMode(0755))
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
-	if err != nil {
-		return err
-	}
-	err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
-	if err != nil {
-		return err
-	}
-	return nil
+        data, err := Asset(name)
+        if err != nil {
+                return err
+        }
+        info, err := AssetInfo(name)
+        if err != nil {
+                return err
+        }
+        err = os.MkdirAll(_filePath(dir, path.Dir(name)), os.FileMode(0755))
+        if err != nil {
+                return err
+        }
+        err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
+        if err != nil {
+                return err
+        }
+        err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
+        if err != nil {
+                return err
+        }
+        return nil
 }
 
 // Restore assets under the given directory recursively
 func RestoreAssets(dir, name string) error {
-	children, err := AssetDir(name)
-	if err != nil { // File
-		return RestoreAsset(dir, name)
-	} else { // Dir
-		for _, child := range children {
-			err = RestoreAssets(dir, path.Join(name, child))
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+        children, err := AssetDir(name)
+        if err != nil { // File
+                return RestoreAsset(dir, name)
+        } else { // Dir
+                for _, child := range children {
+                        err = RestoreAssets(dir, path.Join(name, child))
+                        if err != nil {
+                                return err
+                        }
+                }
+        }
+        return nil
 }
 
 func _filePath(dir, name string) string {
-	cannonicalName := strings.Replace(name, "\\", "/", -1)
-	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
+        cannonicalName := strings.Replace(name, "\\", "/", -1)
+        return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
+
 
 func assetFS() *assetfs.AssetFS {
 	for k := range _bintree.Children {
